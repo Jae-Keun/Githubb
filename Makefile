@@ -12,4 +12,3 @@ final.elf : 1.o 2.o 3.o 4.o main.c
 
 clean :
 	rm 1.o 2.o 3.o 4.o final.elf
-
