@@ -7,7 +7,7 @@ all :
 	$(CC) -c buzzer.c -o buzzer.o
 	$(AR) rc libMyPeri.a led.o button.o buzzer.o
 	
-	$(CC) --static -o peritest ledtest.c libMyPeri.a -lpthread
+	$(CC) --static -o peritest mylib.c libMyPeri.a -lpthread
 
 clean:
 	rm led.o button.o buzzer.o libMyPeri.a peritest
