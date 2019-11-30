@@ -5,7 +5,8 @@ all :
 	$(CC) -c led.c -o led.o
 	$(CC) -c button.c -o button.o -lpthread
 	$(CC) -c buzzer.c -o buzzer.o
-	$(AR) rc libMyPeri.a led.o button.o buzzer.o
+	$(CC) -c fnd.c -o fnd.o
+	$(AR) rc libMyPeri.a led.o button.o buzzer.o fnd.o
 	
 	$(CC) --static -o peritest mylib.c libMyPeri.a -lpthread
 

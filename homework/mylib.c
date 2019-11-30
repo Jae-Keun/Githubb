@@ -12,6 +12,7 @@
 #include "led.h"
 #include "button.h"
 #include "buzzer.h"
+#include "fnd.h"
 
 int main()
 {
@@ -21,6 +22,7 @@ int main()
 	ledLibInit();
 	buttonLibInit();
 	buzzerLibInit();
+	fndLibInit();
 	
 	ledAllOn();
 	sleep(1);
@@ -34,7 +36,8 @@ int main()
 			ledOnOff(cnt,1);
 			buzzerLibOnBuz(440);
 			cnt += 1;
-			printf("%d\n", ledStatus());	
+			printf("%d\n", ledStatus());
+			fndDisp(ledStatus(), 0);
 			sleep(1);
 			if(cnt == 8)
 			{
@@ -47,7 +50,8 @@ int main()
 			ledOnOff(cnt,0);
 			buzzerLibOffBuz();
 			cnt -= 1;
-			printf("%d\n", ledStatus());	
+			printf("%d\n", ledStatus());
+			fndLibOff();
 			sleep(1);
 			if(cnt == -1)
 			{
@@ -60,6 +64,7 @@ int main()
 	ledLibExit();
 	buttonLibExit();
 	buzzerLibExit();
+	fndLibExit();
 	
 	return 0;
 }
