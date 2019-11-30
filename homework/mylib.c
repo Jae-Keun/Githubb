@@ -13,21 +13,28 @@
 #include "button.h"
 #include "buzzer.h"
 #include "fnd.h"
+#include "lcdtext.h"
 
 int main()
 {
 	int stat = 0;
 	int cnt = 0;
 	
+	char line1[16] = "text lcd test";
+	char line2[16] = "hello world!";
+	
 	ledLibInit();
 	buttonLibInit();
 	buzzerLibInit();
 	fndLibInit();
+	lcdtextLibInit();
 	
 	ledAllOn();
 	sleep(1);
 	ledAllOff();
 	sleep(1);
+	
+	lcdtextwrite(line1, line2, 0);
 	
 	while(1)
 	{
@@ -65,6 +72,7 @@ int main()
 	buttonLibExit();
 	buzzerLibExit();
 	fndLibExit();
+	lcdtextLibInit();
 	
 	return 0;
 }
