@@ -12,7 +12,6 @@
 #include <string.h>
 #include <unistd.h>
 #include <termios.h>
-//#include <stdbool.h>
 #include <stdint.h>
 #include <time.h>
 #include <signal.h>

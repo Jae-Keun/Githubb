@@ -4,6 +4,11 @@
 #define BUTTON_DRIVER_NAME "/dev/input/event4"
 #define MESSAGE_ID 1122
 
+#define UP 1
+#define DOWN 2
+#define LEFT 3
+#define RIGHT 4
+
 char button_input;
 
 typedef struct{
