@@ -49,11 +49,11 @@ static void* buttonThFunc(void *arg)
 			//printf("EV_KEY(");
 			
 			switch(stEvent.code) {
+				case KEY_HOME: button_input = UP; break;
+				case KEY_BACK: button_input = DOWN; break;
+				case KEY_SEARCH: button_input = LEFT; break;
+				case KEY_MENU: button_input = RIGHT; break;
 				case KEY_VOLUMEUP: button_input = 5; break;
-				case KEY_HOME: button_input = 3; break;
-				case KEY_SEARCH: button_input = 1; break;
-				case KEY_BACK: button_input = 4; break;
-				case KEY_MENU: button_input = 2; break;
 				case KEY_VOLUMEDOWN: button_input = 6; break;
 			}
 			

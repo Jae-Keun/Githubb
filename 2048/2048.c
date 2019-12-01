@@ -446,13 +446,13 @@ int main(int argc, char *argv[]) {
 	*/
 	while(true){
 		switch(button_input)	{
-			case 1 :
+			case LEFT :
 				success = moveLeft(board); break;
-			case 2 :
+			case RIGHT :
 				success = moveRight(board); break;
-			case 3:
+			case UP:
 				success = moveUp(board);    break;
-			case 4:
+			case DOWN:
 				success = moveDown(board);  break;
 			default : success = false;
 		}
