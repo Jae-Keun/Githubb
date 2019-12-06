@@ -1,7 +1,7 @@
 #ifndef _BUTTON_H_
 #define _BUTTON_H_
 
-#define BUTTON_DRIVER_NAME "/dev/input/event4"
+#define BUTTON_DRIVER_NAME "/dev/input/event5"
 #define MESSAGE_ID 1122
 
 #define UP 1

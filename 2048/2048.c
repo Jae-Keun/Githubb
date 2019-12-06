@@ -18,8 +18,10 @@
 
 #include "fnd.h"			// for use fnd
 #include "button.h"
+#include "bitmapFileHeader.h"
+#include "libBitmap.h"
 
-#define _XOPEN_SOURCE 500
+
 #define SIZE 4
 
 #define true 1
@@ -388,8 +390,26 @@ int main(int argc, char *argv[]) {
 	// register signal handler for when ctrl-c is pressed
 	signal(SIGINT, signal_callback_handler);
 
+	// print lcd
+	int screen_width;
+    int screen_height;
+    int bits_per_pixel;
+    int line_length;
+	
+	
+	//FrameBuffer init
+    if ( fb_init(&screen_width, &screen_height, &bits_per_pixel, &line_length) < 0 )
+	{
+		printf ("FrameBuffer Init Failed\r\n");
+		return 0;
+	}
+	
+	fb_clear();
+
 	initBoard(board);
+	fb_write(board);
 	setBufferedInput(false);
+
 	/*
 	while (true) {
 		c=getchar();
@@ -459,10 +479,14 @@ int main(int argc, char *argv[]) {
 		}
 		if (success) {
 			drawBoard(board);
+			fb_write(board);
+			
 			fndDisp(score, 0);		// fnd
 			usleep(150000);
 			addRandom(board);
+			
 			drawBoard(board);
+			fb_write(board);
 			
 			button_input = 0;
 			
@@ -480,6 +504,8 @@ int main(int argc, char *argv[]) {
 
 	fndLibExit();
 	buttonLibExit();
+	
+	//fb_close();
 	
 	return EXIT_SUCCESS;
 }
