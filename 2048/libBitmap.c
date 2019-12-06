@@ -10,54 +10,359 @@
 
 #include "libBitmap.h"
 #include "bitmapFileHeader.h"
-static char *pDib;
-//Read BMP from filename, to data, pDib, with cols, rows.
-int read_bmp(char *filename, char **data, int *cols, int *rows)
-{
-    BITMAPFILEHEADER    bmpHeader;
-    BITMAPINFOHEADER    *bmpInfoHeader;
-    unsigned int    size;
-    unsigned char   magicNum[2];
-    int     nread;
-    FILE    *fp;
 
-    fp  =  fopen(filename, "rb");
+static char *pDib;
+
+static int fbfd;
+static int fbHeight=0;	//현재 하드웨어의 사이즈
+static int fbWidth=0;	//현재 하드웨어의 사이즈
+static unsigned long   *pfbmap;	//프레임 버퍼
+static struct fb_var_screeninfo fbInfo;	//To use to do double buffering.
+static struct fb_fix_screeninfo fbFixInfo;	//To use to do double buffering.
+
+unsigned long brick_color[12][130 *130];
+
+//Read BMP from filename, to data, pDib, with cols, rows.
+int read_bmp()
+{
+	int coor_y=0;
+	int coor_x=0;
+    int n =3;
+    int k = 0;
+    unsigned long temp[3];
+    FILE *fp;
+	unsigned char data, trash;
+
+	for(int i = 0; i < 130 * 130; i++)
+		brick_color[0][i] = 0xf0f0f0;
+
+	//----------------------- 2 -------------------------//
+    fp  =  fopen("2048-2.bmp", "rb");
     if(fp == NULL) {
         printf("ERROR\n");
         return -1;
     }
 
-    // identify bmp file
-    magicNum[0]   =   fgetc(fp);
-    magicNum[1]   =   fgetc(fp);
-    //printf("magicNum : %c%c\n", magicNum[0], magicNum[1]);
+	for(int i = 0; i< 54;i++){
+		fscanf(fp, "%c", &data);
+	}
+	
+	while(!feof(fp)) {
+		for(int i = 0; i< 390; i++){
+			fscanf(fp, "%c", &data);
+			if(n > 0){
+				n--;
+				temp[n] = (unsigned long) data;
+			}
+			if(n == 0) {
+				brick_color[1][k] = (temp[2] << 16) + (temp[1] << 8) + temp[0];
+				n = 3;
+				k++;
+			}
+		}
+		fscanf(fp, "%c", &trash);
+		fscanf(fp, "%c", &trash);
+	}
+    fclose(fp);
 
-    if(magicNum[0] != 'B' && magicNum[1] != 'M') {
-        printf("It's not a bmp file!\n");
-        fclose(fp);
+	//----------------------- 4 -------------------------//
+    fp  =  fopen("2048-4.bmp", "rb");
+    k=0;
+    if(fp == NULL) {
+        printf("ERROR\n");
         return -1;
     }
 
-    nread   =   fread(&bmpHeader.bfSize, 1, sizeof(BITMAPFILEHEADER), fp);
-    size    =   bmpHeader.bfSize - sizeof(BITMAPFILEHEADER);
-    pDib   =   (unsigned char *)malloc(size);      // DIB Header(Image Header)
-    fread(pDib, 1, size, fp);
-    bmpInfoHeader   =   (BITMAPINFOHEADER *)pDib;
-
-    //printf("nread : %d\n", nread);
-    //printf("size : %d\n", size);
-
-    // check 24bit
-    if(BIT_VALUE_24BIT != (bmpInfoHeader->biBitCount))     // bit value
-    {
-        printf("It supports only 24bit bmp!\n");
-        fclose(fp);
+	for(int i = 0; i< 54;i++){
+		fscanf(fp, "%c", &data);
+	}
+	
+	while(!feof(fp)) {
+		for(int i = 0; i< 390; i++){
+			fscanf(fp, "%c", &data);
+			if(n > 0){
+				n--;
+				temp[n] = (unsigned long) data;
+			}
+			if(n == 0) {
+				brick_color[2][k] = (temp[2] << 16) + (temp[1] << 8) + temp[0];
+				n = 3;
+				k++;
+			}
+		}
+		fscanf(fp, "%c", &trash);
+		fscanf(fp, "%c", &trash);
+	}
+    fclose(fp);
+    
+    //----------------------- 8 -------------------------//
+    fp  =  fopen("2048-8.bmp", "rb");
+    k=0;
+    if(fp == NULL) {
+        printf("ERROR\n");
         return -1;
     }
 
-    *cols   =   bmpInfoHeader->biWidth;
-    *rows   =   bmpInfoHeader->biHeight;
-    *data   =   (char *) ((char *)(pDib + bmpHeader.bfOffBits - sizeof(bmpHeader) - 2));
+	for(int i = 0; i< 54;i++){
+		fscanf(fp, "%c", &data);
+	}
+	
+	while(!feof(fp)) {
+		for(int i = 0; i< 390; i++){
+			fscanf(fp, "%c", &data);
+			if(n > 0){
+				n--;
+				temp[n] = (unsigned long) data;
+			}
+			if(n == 0) {
+				brick_color[3][k] = (temp[2] << 16) + (temp[1] << 8) + temp[0];
+				n = 3;
+				k++;
+			}
+		}
+		fscanf(fp, "%c", &trash);
+		fscanf(fp, "%c", &trash);
+	}
+    fclose(fp);
+    
+    //----------------------- 16 -------------------------//
+    fp  =  fopen("2048-16.bmp", "rb");
+    k=0;
+    if(fp == NULL) {
+        printf("ERROR\n");
+        return -1;
+    }
+
+	for(int i = 0; i< 54;i++){
+		fscanf(fp, "%c", &data);
+	}
+	
+	while(!feof(fp)) {
+		for(int i = 0; i< 390; i++){
+			fscanf(fp, "%c", &data);
+			if(n > 0){
+				n--;
+				temp[n] = (unsigned long) data;
+			}
+			if(n == 0) {
+				brick_color[4][k] = (temp[2] << 16) + (temp[1] << 8) + temp[0];
+				n = 3;
+				k++;
+			}
+		}
+		fscanf(fp, "%c", &trash);
+		fscanf(fp, "%c", &trash);
+	}
+    fclose(fp);
+    
+    //----------------------- 32 -------------------------//
+    fp  =  fopen("2048-32.bmp", "rb");
+    k=0;
+    if(fp == NULL) {
+        printf("ERROR\n");
+        return -1;
+    }
+
+	for(int i = 0; i< 54;i++){
+		fscanf(fp, "%c", &data);
+	}
+	
+	while(!feof(fp)) {
+		for(int i = 0; i< 390; i++){
+			fscanf(fp, "%c", &data);
+			if(n > 0){
+				n--;
+				temp[n] = (unsigned long) data;
+			}
+			if(n == 0) {
+				brick_color[5][k] = (temp[2] << 16) + (temp[1] << 8) + temp[0];
+				n = 3;
+				k++;
+			}
+		}
+		fscanf(fp, "%c", &trash);
+		fscanf(fp, "%c", &trash);
+	}
+    fclose(fp);
+    
+    //----------------------- 64 -------------------------//
+    fp  =  fopen("2048-64.bmp", "rb");
+    k=0;
+    if(fp == NULL) {
+        printf("ERROR\n");
+        return -1;
+    }
+
+	for(int i = 0; i< 54;i++){
+		fscanf(fp, "%c", &data);
+	}
+	
+	while(!feof(fp)) {
+		for(int i = 0; i< 390; i++){
+			fscanf(fp, "%c", &data);
+			if(n > 0){
+				n--;
+				temp[n] = (unsigned long) data;
+			}
+			if(n == 0) {
+				brick_color[6][k] = (temp[2] << 16) + (temp[1] << 8) + temp[0];
+				n = 3;
+				k++;
+			}
+		}
+		fscanf(fp, "%c", &trash);
+		fscanf(fp, "%c", &trash);
+	}
+    fclose(fp);
+    
+    //----------------------- 128 -------------------------//
+    fp  =  fopen("2048-128.bmp", "rb");
+    k=0;
+    if(fp == NULL) {
+        printf("ERROR\n");
+        return -1;
+    }
+
+	for(int i = 0; i< 54;i++){
+		fscanf(fp, "%c", &data);
+	}
+	
+	while(!feof(fp)) {
+		for(int i = 0; i< 390; i++){
+			fscanf(fp, "%c", &data);
+			if(n > 0){
+				n--;
+				temp[n] = (unsigned long) data;
+			}
+			if(n == 0) {
+				brick_color[7][k] = (temp[2] << 16) + (temp[1] << 8) + temp[0];
+				n = 3;
+				k++;
+			}
+		}
+		fscanf(fp, "%c", &trash);
+		fscanf(fp, "%c", &trash);
+	}
+    fclose(fp);
+    
+    //----------------------- 256 -------------------------//
+    fp  =  fopen("2048-256.bmp", "rb");
+    k=0;
+    if(fp == NULL) {
+        printf("ERROR\n");
+        return -1;
+    }
+
+	for(int i = 0; i< 54;i++){
+		fscanf(fp, "%c", &data);
+	}
+	
+	while(!feof(fp)) {
+		for(int i = 0; i< 390; i++){
+			fscanf(fp, "%c", &data);
+			if(n > 0){
+				n--;
+				temp[n] = (unsigned long) data;
+			}
+			if(n == 0) {
+				brick_color[8][k] = (temp[2] << 16) + (temp[1] << 8) + temp[0];
+				n = 3;
+				k++;
+			}
+		}
+		fscanf(fp, "%c", &trash);
+		fscanf(fp, "%c", &trash);
+	}
+    fclose(fp);
+    
+    //----------------------- 512 -------------------------//
+    fp  =  fopen("2048-512.bmp", "rb");
+    k=0;
+    if(fp == NULL) {
+        printf("ERROR\n");
+        return -1;
+    }
+
+	for(int i = 0; i< 54;i++){
+		fscanf(fp, "%c", &data);
+	}
+	
+	while(!feof(fp)) {
+		for(int i = 0; i< 390; i++){
+			fscanf(fp, "%c", &data);
+			if(n > 0){
+				n--;
+				temp[n] = (unsigned long) data;
+			}
+			if(n == 0) {
+				brick_color[9][k] = (temp[2] << 16) + (temp[1] << 8) + temp[0];
+				n = 3;
+				k++;
+			}
+		}
+		fscanf(fp, "%c", &trash);
+		fscanf(fp, "%c", &trash);
+	}
+    fclose(fp);
+    
+    //----------------------- 1024 -------------------------//
+    fp  =  fopen("2048-1024.bmp", "rb");
+    k=0;
+    if(fp == NULL) {
+        printf("ERROR\n");
+        return -1;
+    }
+
+	for(int i = 0; i< 54;i++){
+		fscanf(fp, "%c", &data);
+	}
+	
+	while(!feof(fp)) {
+		for(int i = 0; i< 390; i++){
+			fscanf(fp, "%c", &data);
+			if(n > 0){
+				n--;
+				temp[n] = (unsigned long) data;
+			}
+			if(n == 0) {
+				brick_color[10][k] = (temp[2] << 16) + (temp[1] << 8) + temp[0];
+				n = 3;
+				k++;
+			}
+		}
+		fscanf(fp, "%c", &trash);
+		fscanf(fp, "%c", &trash);
+	}
+    fclose(fp);
+    
+    //----------------------- 2048 -------------------------//
+    fp  =  fopen("2048-2048.bmp", "rb");
+    k=0;
+    if(fp == NULL) {
+        printf("ERROR\n");
+        return -1;
+    }
+
+	for(int i = 0; i< 54;i++){
+		fscanf(fp, "%c", &data);
+	}
+	
+	while(!feof(fp)) {
+		for(int i = 0; i< 390; i++){
+			fscanf(fp, "%c", &data);
+			if(n > 0){
+				n--;
+				temp[n] = (unsigned long) data;
+			}
+			if(n == 0) {
+				brick_color[11][k] = (temp[2] << 16) + (temp[1] << 8) + temp[0];
+				n = 3;
+				k++;
+			}
+		}
+		fscanf(fp, "%c", &trash);
+		fscanf(fp, "%c", &trash);
+	}
     fclose(fp);
 
 	return 1;
@@ -68,14 +373,6 @@ int close_bmp(void)     // DIB(Device Independent Bitmap)
     free(pDib);
 	return 1;
 }
-
-static int fbfd;
-static int fbHeight=0;	//현재 하드웨어의 사이즈
-static int fbWidth=0;	//현재 하드웨어의 사이즈
-static unsigned long   *pfbmap;	//프레임 버퍼
-static struct fb_var_screeninfo fbInfo;	//To use to do double buffering.
-static struct fb_fix_screeninfo fbFixInfo;	//To use to do double buffering.
-
 
 #define PFBSIZE 			(fbHeight*fbWidth*sizeof(unsigned long)*2)	//Double Buffering
 #define DOUBLE_BUFF_START	(fbHeight*fbWidth)	///Double Swaping
@@ -222,48 +519,27 @@ void fillbox(int i, int j, uint8_t num)
 {
 	int coor_y=0;
 	int coor_x=0;
-	
-	int color;
-	
-	switch(num){
-		case 0 : 
-			color = 0xf0f0f0;
-			break;
-		case 1 :
-			color = 0xff0000;
-			break;
-		case 2 :
-			color = 0x00ff00;
-			break;
-		case 3 :
-			color = 0x0000ff;
-			break;
-		case 4 :
-			break;
-		case 5 :
-			break;
-		case 6 :
-			break;
-		case 7 :
-			break;
-		case 8 :
-			break;
-		case 9 :
-			break;
-		case 10 :
-			break;
-		case 11 :
-			break;
-		default :
-			color = 0xf0f0f0;
-	};
-	
+	int z = 0;
+	int y = 1;
+	/*
 	for(coor_y = 25+SQAR_SIZE*i;coor_y < 15 + SQAR_SIZE*(i+1); coor_y ++)
 	{
 		for(coor_x = 237+SQAR_SIZE*j; coor_x < 227 + SQAR_SIZE*(j+1); coor_x++)
 		{
 			//pfbmap[coor_y*fbWidth+ (fbWidth-coor_x) + currentEmptyBufferPos] = 0xf0f0f0;
-			pfbmap[coor_y*fbWidth+ (fbWidth-coor_x) + currentEmptyBufferPos] = color;
+			//pfbmap[coor_y*fbWidth+ (fbWidth-coor_x) + currentEmptyBufferPos] = color;
+			pfbmap[coor_y*fbWidth+ (fbWidth-coor_x) + currentEmptyBufferPos] = brick_color[num][z];
+			z++;
+		}
+	}*/
+	for(coor_x = 237+SQAR_SIZE*j; coor_x < 227 + SQAR_SIZE*(j+1); coor_x++)
+	{
+		for(coor_y = 25+SQAR_SIZE*i;coor_y < 15 + SQAR_SIZE*(i+1); coor_y ++)
+		{
+			//pfbmap[coor_y*fbWidth+ (fbWidth-coor_x) + currentEmptyBufferPos] = 0xf0f0f0;
+			//pfbmap[coor_y*fbWidth+ (fbWidth-coor_x) + currentEmptyBufferPos] = color;
+			pfbmap[coor_y*fbWidth+ (fbWidth-coor_x) + currentEmptyBufferPos] = brick_color[num][z];
+			z++;
 		}
 	}
 }
@@ -275,23 +551,6 @@ void fb_write(uint8_t board[SIZE][SIZE])
 	int coor_y=0;
 	int coor_x=0;
 	int targetHeight = 600;
-	//int targetWidth = (fbWidth<picWidth)?fbWidth:picWidth;		//if Screen과 파일 사이즈가 안맞으면
-	/*
-	for(coor_y = 0; coor_y < targetHeight; coor_y++) 
-	{
-		//int bmpYOffset = coor_y*picWidth*3; ///Every 1Pixel requires 3Bytes.
-		//int bmpXOffset = 0;
-		for (coor_x=237; coor_x < 787; coor_x++)
-		{
-			//BMP: B-G-R로 인코딩 됨, FB: 0-R-G-B로 인코딩 됨.
-			pfbmap[coor_y*fbWidth+ (fbWidth-coor_x) + currentEmptyBufferPos] = 0x000000;
-				//((unsigned long)(picData[bmpYOffset+bmpXOffset+2])<<16) 	+
-				//((unsigned long)(picData[bmpYOffset+bmpXOffset+1])<<8) 		+
-				//((unsigned long)(picData[bmpYOffset+bmpXOffset+0]));
-			//bmpXOffset+=3;	//Three Byte.
-		}
-    }
-    */
     
     for(int i =0;i<4;i++)
     {
@@ -301,53 +560,6 @@ void fb_write(uint8_t board[SIZE][SIZE])
 		}
 	}
     
-    /*for(int i= 0; i<4;i++)
-    {
-      for(coor_y = 25+SQAR_SIZE*i;coor_y < 15 + SQAR_SIZE*(i+1); coor_y ++)
-      {
-         for(int j=0;j<4;j++){
-            for(coor_x = 237+SQAR_SIZE*j; coor_x < 227 + SQAR_SIZE*(j+1); coor_x++)
-            {
-               pfbmap[coor_y*fbWidth+ (fbWidth-coor_x) + currentEmptyBufferPos] = 0x000000;
-            }
-         }
-      }
-   }
-   */
-    /*
-    for(i =0; i<4;i++)
-	{
-		for(coor_y = 25 + SQAR_SIZE * i + 10 * i; coor_y < 25 + SQAR_SIZE * (i+1) + 10 * i + SQAR_SIZE; coor_y ++)
-		{
-			for(j=0;j<4;j++)
-			{
-				for(coor_x = 237 + SQAR_SIZE * j + 10 * j; coor_x < 237 + SQAR_SIZE * (j+1) + 10 * j + SQAR_SIZE; coor_x ++)
-				{
-					pfbmap[coor_y*fbWidth+ (fbWidth-coor_x) + currentEmptyBufferPos] = 0x000000;
-				}
-			}
-		}
-	}
-	*/
-    
-    /*
-    for(coor_y = 25 + SQAR_SIZE*3 + 10 * 3;coor_y < 25 + SQAR_SIZE*4 + 10 * 3; coor_y ++)
-    {
-		for(coor_x = 237 + SQAR_SIZE*4 + 10 *3; coor_x < 237 + SQAR_SIZE*4 + 10 *3; coor_x++)
-		{
-			pfbmap[coor_y*fbWidth+ (fbWidth-coor_x) + currentEmptyBufferPos] = 0x000000;
-		}
-	}
-
-    // 4, 4
-    for(coor_y = 25;coor_y < 25 + SQAR_SIZE; coor_y ++)
-    {
-		for(coor_x = 237; coor_x < 237 + SQAR_SIZE; coor_x++)
-		{
-			pfbmap[coor_y*fbWidth+ (fbWidth-coor_x) + currentEmptyBufferPos] = 0x000000;
-		}
-	}
-    */
 	#ifdef ENABLED_DOUBLE_BUFFERING
 		fb_doubleBufSwap();
 	#endif

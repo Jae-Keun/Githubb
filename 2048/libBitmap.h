@@ -6,7 +6,7 @@
 //#define ENABLED_DOUBLE_BUFFERING	1
 #define SIZE 4
 
-int read_bmp(char *filename, char **data, int *cols, int *rows);
+int read_bmp();
 int close_bmp(void);
 
 int fb_init(int * screen_width, int * screen_height, int * bits_per_pixel, int * line_length);

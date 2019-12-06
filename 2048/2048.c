@@ -375,6 +375,8 @@ int main(int argc, char *argv[]) {
 	char c;
 	bool success;
 
+	read_bmp();
+/*
 	if (argc == 2 && strcmp(argv[1],"test")==0) {
 		return test();
 	}
@@ -384,7 +386,7 @@ int main(int argc, char *argv[]) {
 	if (argc == 2 && strcmp(argv[1],"bluered")==0) {
 		scheme = 2;
 	}
-
+*/
 	printf("\033[?25l\033[2J");
 
 	// register signal handler for when ctrl-c is pressed
@@ -505,6 +507,7 @@ int main(int argc, char *argv[]) {
 	fndLibExit();
 	buttonLibExit();
 	
+	close_bmp();
 	//fb_close();
 	
 	return EXIT_SUCCESS;
