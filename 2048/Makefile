@@ -4,7 +4,8 @@ AR = arm-linux-gnueabi-ar
 all :
 	$(CC) -c fnd.c -o fnd.o
 	$(CC) -c button.c -o button.o -lpthread
-	$(AR) rc libMyPeri.a fnd.o button.o
+	$(CC) -c lcdtext.c -o lcdtext.o
+	$(AR) rc libMyPeri.a fnd.o button.o lcdtext.o
 	
 	$(CC) -O3 -o libBitmap.o -c libBitmap.c
 	$(AR) rc libMyLib.a libBitmap.o 	

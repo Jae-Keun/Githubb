@@ -18,6 +18,7 @@
 
 #include "fnd.h"			// for use fnd
 #include "button.h"
+#include "lcdtext.h"
 #include "bitmapFileHeader.h"
 #include "libBitmap.h"
 
@@ -370,11 +371,16 @@ void signal_callback_handler(int signum) {
 int main(int argc, char *argv[]) {
 	fndLibInit();
 	buttonLibInit();
+	lcdtextLibInit();
 	
 	uint8_t board[SIZE][SIZE];
 	char c;
 	bool success;
 
+	char GameName[16] = "2048 GAME";
+	char GameStart[16] = "GMAE START!";
+	char GameEnd[16] = "GAME END!";
+	
 	read_bmp();
 /*
 	if (argc == 2 && strcmp(argv[1],"test")==0) {
@@ -411,7 +417,7 @@ int main(int argc, char *argv[]) {
 	initBoard(board);
 	fb_write(board);
 	setBufferedInput(false);
-
+	lcdtextwrite(GameName, GameStart, 0);
 	/*
 	while (true) {
 		c=getchar();
@@ -494,6 +500,7 @@ int main(int argc, char *argv[]) {
 			
 			if (gameEnded(board)) {
 				printf("         GAME OVER          \n");
+				lcdtextwrite(GameName, GameEnd, 0);
 				break;
 			}
 		}
@@ -506,6 +513,7 @@ int main(int argc, char *argv[]) {
 
 	fndLibExit();
 	buttonLibExit();
+	lcdtextLibInit();
 	
 	close_bmp();
 	//fb_close();
