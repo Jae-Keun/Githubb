@@ -538,9 +538,11 @@ void fillbox(int i, int j, uint8_t num)
 		{
 			//pfbmap[coor_y*fbWidth+ (fbWidth-coor_x) + currentEmptyBufferPos] = 0xf0f0f0;
 			//pfbmap[coor_y*fbWidth+ (fbWidth-coor_x) + currentEmptyBufferPos] = color;
-			pfbmap[coor_y*fbWidth+ (fbWidth-coor_x) + currentEmptyBufferPos] = brick_color[num][z];
+			pfbmap[coor_y*fbWidth+ (fbWidth-coor_x) + currentEmptyBufferPos] = brick_color[num][130 * y - z];
 			z++;
 		}
+		y++;
+		z=0;
 	}
 }
 

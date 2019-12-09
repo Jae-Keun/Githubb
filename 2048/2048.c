@@ -381,6 +381,7 @@ int main(int argc, char *argv[]) {
 	char GameStart[16] = "GMAE START!";
 	char GameEnd[16] = "GAME END!";
 	
+	// 브릭들을 읽어옴
 	read_bmp();
 /*
 	if (argc == 2 && strcmp(argv[1],"test")==0) {

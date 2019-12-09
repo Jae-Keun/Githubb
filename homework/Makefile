@@ -12,4 +12,4 @@ all :
 	$(CC) --static -o peritest mylib.c libMyPeri.a -lpthread
 
 clean:
-	rm led.o button.o buzzer.o libMyPeri.a peritest
+	rm led.o button.o buzzer.o fnd.o lcdtext.o libMyPeri.a peritest
