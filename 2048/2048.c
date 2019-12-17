@@ -19,6 +19,8 @@
 #include "fnd.h"			// for use fnd
 #include "button.h"
 #include "lcdtext.h"
+#include "led.h"
+#include "buzzer.h"
 #include "bitmapFileHeader.h"
 #include "libBitmap.h"
 
@@ -310,17 +312,38 @@ int main() {
 	fndLibInit();
 	buttonLibInit();
 	lcdtextLibInit();
+	ledLibInit();
+	buzzerLibInit();
 	
 	uint8_t board[SIZE][SIZE];
 	char c;
 	bool success;
+	
+	int buzzer_flag[8] = {1,1,1,1,1,1,1,1};
 
 	char GameName[16] = "2048 GAME";
 	char GameStart[16] = "GMAE START!";
 	char GameEnd[16] = "GAME END!";
+	char GameRestart[16] = "GAME RESTART!";
 	
+	char CameraLeft[16] = "Camera_LEFT!";
+	char CameraRight[16] = "Camera_RIGHT!";
+	char CameraUp[16] = "Camera_UP!";
+	char CameraDown[16] = "Camera_Down!";
+	
+	char ButtonLeft[16] = "Button_LEFT!";
+	char ButtonRight[16] = "Button_RIGHT!";
+	char ButtonUp[16] = "Button_UP!";
+	char ButtonDown[16] = "Button_Down!";
+	
+	
+	ledAllOn();
+	buzzerLibOnBuz(262);
 	// 브릭들을 읽어옴
 	read_bmp();
+	buzzerLibOffBuz();
+	sleep(1);
+	ledAllOff();
 
 	printf("\033[?25l\033[2J");
 
@@ -351,13 +374,21 @@ int main() {
 	while(true){
 		switch(button_input)	{
 			case LEFT :
-				success = moveLeft(board); break;
+				success = moveLeft(board); 
+				lcdtextwrite(GameName, ButtonLeft, 0);
+				break;
 			case RIGHT :
-				success = moveRight(board); break;
+				success = moveRight(board); 
+				lcdtextwrite(GameName, ButtonRight, 0);
+				break;
 			case UP:
-				success = moveUp(board);    break;
+				success = moveUp(board);   
+				lcdtextwrite(GameName, ButtonUp, 0);
+				break;
 			case DOWN:
-				success = moveDown(board);  break;
+				success = moveDown(board);  
+				lcdtextwrite(GameName, ButtonDown, 0);
+				break;
 			default : success = false;
 		}
 		if (success) {
@@ -376,18 +407,90 @@ int main() {
 			if (gameEnded(board)) {
 				printf("         GAME OVER          \n");
 				lcdtextwrite(GameName, GameEnd, 0);
-				break;
+				//break;
+				usleep(150000);
+				button_input = RESTART;
 			}
 		}
 		if(button_input == RESTART) {
 			button_input = 0;
+			lcdtextwrite(GameName, GameRestart, 0);
+			buzzerLibOnBuz(262);
+			usleep(150000);
+			buzzerLibOffBuz();
+			ledAllOff();
+			for(int k = 0; k < 8; k++) buzzer_flag[k] = 1;
 			initBoard(board);
 			drawBoard(board);
 			fb_write(board);
 		}
 		if(button_input == QUIT) {
 			// 화면 초기화 필요
+			buzzerLibOnBuz(523);
+			usleep(300000);
+			buzzerLibOffBuz();
 			break;
+		}
+		
+		for(int k = 0; k < 4; k++){
+			for(int l = 0; l < 4; l++){
+				if(board[k][l] == 4 && buzzer_flag[0] == 1){	
+					ledOnOff(0,1);
+					buzzerLibOnBuz(262);
+					usleep(150000);
+					buzzerLibOffBuz();
+					buzzer_flag[0] = 0;
+				}
+				else if(board[k][l] == 5 && buzzer_flag[1] == 1){
+					ledOnOff(1,1);
+					buzzerLibOnBuz(294);
+					usleep(150000);
+					buzzerLibOffBuz();
+					buzzer_flag[1] = 0;
+				  }
+				else if(board[k][l] == 6 && buzzer_flag[2] == 1) { 
+					ledOnOff(2,1);
+					buzzerLibOnBuz(330);
+					usleep(150000);
+					buzzerLibOffBuz();
+					buzzer_flag[2] = 0;
+				}
+				else if(board[k][l] == 7 && buzzer_flag[3] == 1){
+					ledOnOff(3,1);
+					buzzerLibOnBuz(349);
+					usleep(150000);
+					buzzerLibOffBuz();
+					buzzer_flag[3] = 0;					
+				}
+				else if(board[k][l] == 8 && buzzer_flag[4] == 1){
+					ledOnOff(4,1);
+					buzzerLibOnBuz(392);
+					usleep(150000);
+					buzzerLibOffBuz();
+					buzzer_flag[4] = 0;	
+				}
+				else if(board[k][l] == 9 && buzzer_flag[5] == 1){
+					ledOnOff(5,1);
+					buzzerLibOnBuz(440);
+					usleep(150000);
+					buzzerLibOffBuz();
+					buzzer_flag[5] = 0;	
+				}
+				else if(board[k][l] == 10 && buzzer_flag[6] == 1){
+					ledOnOff(6,1);
+					buzzerLibOnBuz(494);
+					usleep(150000);
+					buzzerLibOffBuz();
+					buzzer_flag[6] = 0;	
+				}
+				else if(board[k][l] == 11 && buzzer_flag[7] == 1){
+					ledOnOff(7,1);
+					buzzerLibOnBuz(523);
+					usleep(150000);
+					buzzerLibOffBuz();
+					buzzer_flag[7] = 0;	
+				}
+			}
 		}
 	}
 	setBufferedInput(true);
@@ -399,6 +502,8 @@ int main() {
 	fndLibExit();
 	buttonLibExit();
 	lcdtextLibInit();
+	ledLibExit();
+	buzzerLibExit();
 	
 	close_bmp();
 	//fb_close();
