@@ -24,7 +24,6 @@
 #include "bitmapFileHeader.h"
 #include "libBitmap.h"
 
-
 #define SIZE 4
 
 #define true 1
@@ -34,6 +33,8 @@
 
 uint32_t score=0;
 uint8_t scheme=0;
+
+extern char button_input;
 
 void getColor(uint8_t value, char *color, size_t length) {
 	uint8_t original[] = {8,255,1,255,2,255,3,255,4,255,5,255,6,255,7,255,9,0,10,0,11,0,12,0,13,0,14,0,255,0,255,0};
@@ -280,7 +281,7 @@ void initBoard(uint8_t board[SIZE][SIZE]) {
 void setBufferedInput(bool enable) {
 	static bool enabled = true;
 	static struct termios old;
-	struct termios new;
+	struct termios news;
 
 	if (enable && !enabled) {
 		// restore the former settings
@@ -289,13 +290,13 @@ void setBufferedInput(bool enable) {
 		enabled = true;
 	} else if (!enable && enabled) {
 		// get the terminal settings for standard input
-		tcgetattr(STDIN_FILENO,&new);
+		tcgetattr(STDIN_FILENO,&news);
 		// we want to keep the old setting to restore them at the end
-		old = new;
+		old = news;
 		// disable canonical mode (buffered i/o) and local echo
-		new.c_lflag &=(~ICANON & ~ECHO);
+		news.c_lflag &=(~ICANON & ~ECHO);
 		// set the new settings immediately
-		tcsetattr(STDIN_FILENO,TCSANOW,&new);
+		tcsetattr(STDIN_FILENO,TCSANOW,&news);
 		// set the new state
 		enabled = false;
 	}
@@ -370,7 +371,7 @@ int main() {
 	fb_write(board);
 	setBufferedInput(false);
 	lcdtextwrite(GameName, GameStart, 0);
-
+	
 	while(true){
 		switch(button_input)	{
 			case LEFT :

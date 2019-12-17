@@ -7,7 +7,7 @@ all :
 	$(CC) -c lcdtext.c -o lcdtext.o
 	$(CC) -c led.c -o led.o
 	$(CC) -c buzzer.c -o buzzer.o
-	$(AR) rc libMyPeri.a fnd.o button.o lcdtext.o led.o buzzer.o
+	$(AR) rc libMyPeri.a fnd.o lcdtext.o led.o buzzer.o button.o 
 	
 	$(CC) -O3 -o libBitmap.o -c libBitmap.c
 	$(AR) rc libMyLib.a libBitmap.o 	
