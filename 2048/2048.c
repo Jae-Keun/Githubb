@@ -379,6 +379,16 @@ int main() {
 				break;
 			}
 		}
+		if(button_input == RESTART) {
+			button_input = 0;
+			initBoard(board);
+			drawBoard(board);
+			fb_write(board);
+		}
+		if(button_input == QUIT) {
+			// 화면 초기화 필요
+			break;
+		}
 	}
 	setBufferedInput(true);
 
