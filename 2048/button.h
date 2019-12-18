@@ -11,6 +11,8 @@
 #define RESTART 5
 #define QUIT 6
 
+char button_input;
+
 typedef struct{
 	long int messageNum;
 	int keyInput;

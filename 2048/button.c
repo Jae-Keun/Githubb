@@ -1,5 +1,3 @@
-// button.c
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -28,7 +26,7 @@ int buttonLibInit(void)
 {
 	fd=open (BUTTON_DRIVER_NAME, O_RDONLY);
 	msgID = msgget (MESSAGE_ID, IPC_CREAT|0666);
-	//pthread_create(&buttonTh_id, NULL, &buttonThFunc, NULL);
+	pthread_create(&buttonTh_id, NULL, &buttonThFunc, NULL);
 }
 
 int buttonLibExit(void)
